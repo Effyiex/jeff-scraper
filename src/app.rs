@@ -107,6 +107,9 @@ fn await_toggle(
 
 }
 
+#[derive(Component)]
+struct SearchbarComponent;
+
 fn create_menu(
   commands: &mut Commands,
   resources: &AppResources
@@ -116,7 +119,6 @@ fn create_menu(
     style: Style {
       position_type: PositionType::Absolute,
       size: Size::all(Val::Percent(100.0)),
-      align_items: AlignItems::Center,
       flex_direction: FlexDirection::Column,
       justify_content: JustifyContent::Start,
       ..Default::default()
@@ -128,8 +130,8 @@ fn create_menu(
 
       parent.spawn(ImageBundle {
         style: Style {
-          position_type: PositionType::Absolute,
           position: UiRect::top(Val::Px(0.0)),
+          margin: UiRect::bottom(Val::Px(4.0)),
           size: Size::new(Val::Percent(100.0), Val::Px(64.0)),
           ..Default::default()
         },
@@ -160,6 +162,17 @@ fn create_menu(
           });
 
         });
+      
+      parent.spawn(ImageBundle {
+        style: Style {
+          margin: UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(4.0), Val::Px(4.0)),
+          size: Size::new(Val::Auto, Val::Px(48.0)),
+          ..Default::default()
+        },
+        background_color: Color::rgba(1.0, 1.0, 1.0, 0.01).into(),
+        ..Default::default()
+      })
+        .insert(SearchbarComponent);
 
     });
 

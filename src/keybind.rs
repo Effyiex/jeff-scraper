@@ -94,10 +94,8 @@ fn await_input(
 
 }
 
-fn get_key_from_string(id: String) -> Option<&'static KeybdKey> {
+fn get_key_map() -> HashMap<String, &'static KeybdKey> {
 
-  println!("[{}::keybind::get_key] // Searching KeyObject of: \"{}\".", env!("CARGO_PKG_NAME"), id);
-  
   let mut keys: HashMap<String, &KeybdKey> = HashMap::new();
   keys.insert("A".to_string(), &KeybdKey::AKey);
   keys.insert("B".to_string(), &KeybdKey::BKey);
@@ -133,7 +131,38 @@ fn get_key_from_string(id: String) -> Option<&'static KeybdKey> {
   keys.insert("ESCAPE".to_string(), &KeybdKey::EscapeKey);
   keys.insert("BACKSPACE".to_string(), &KeybdKey::BackspaceKey);
   keys.insert("DELETE".to_string(), &KeybdKey::DeleteKey);
+  keys.insert("SPACE".to_string(), &KeybdKey::SpaceKey);
+  keys.insert("DOWN".to_string(), &KeybdKey::DownKey);
+  keys.insert("UP".to_string(), &KeybdKey::UpKey);
+  keys.insert("LEFT".to_string(), &KeybdKey::LeftKey);
+  keys.insert("RIGHT".to_string(), &KeybdKey::RightKey);
+  keys.insert("NUMPAD0".to_string(), &KeybdKey::Numpad0Key);
+  keys.insert("NUMPAD1".to_string(), &KeybdKey::Numpad1Key);
+  keys.insert("NUMPAD2".to_string(), &KeybdKey::Numpad2Key);
+  keys.insert("NUMPAD3".to_string(), &KeybdKey::Numpad3Key);
+  keys.insert("NUMPAD4".to_string(), &KeybdKey::Numpad4Key);
+  keys.insert("NUMPAD5".to_string(), &KeybdKey::Numpad5Key);
+  keys.insert("NUMPAD6".to_string(), &KeybdKey::Numpad6Key);
+  keys.insert("NUMPAD7".to_string(), &KeybdKey::Numpad7Key);
+  keys.insert("NUMPAD8".to_string(), &KeybdKey::Numpad8Key);
+  keys.insert("NUMPAD9".to_string(), &KeybdKey::Numpad9Key);
+  keys.insert("NUMROW0".to_string(), &KeybdKey::Numrow0Key);
+  keys.insert("NUMROW1".to_string(), &KeybdKey::Numrow1Key);
+  keys.insert("NUMROW2".to_string(), &KeybdKey::Numrow2Key);
+  keys.insert("NUMROW3".to_string(), &KeybdKey::Numrow3Key);
+  keys.insert("NUMROW4".to_string(), &KeybdKey::Numrow4Key);
+  keys.insert("NUMROW5".to_string(), &KeybdKey::Numrow5Key);
+  keys.insert("NUMROW6".to_string(), &KeybdKey::Numrow6Key);
+  keys.insert("NUMROW7".to_string(), &KeybdKey::Numrow7Key);
+  keys.insert("NUMROW8".to_string(), &KeybdKey::Numrow8Key);
+  keys.insert("NUMROW9".to_string(), &KeybdKey::Numrow9Key);
+  keys.insert("TAB".to_string(), &KeybdKey::TabKey);
 
-  keys.get(&id.to_uppercase()).copied()
+  keys
 
+}
+
+fn get_key_from_string(id: String) -> Option<&'static KeybdKey> {
+  println!("[{}::keybind::get_key] // Searching KeyObject of: \"{}\".", env!("CARGO_PKG_NAME"), id);
+  get_key_map().get(&id.to_uppercase()).copied()
 }

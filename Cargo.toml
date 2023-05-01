@@ -3,6 +3,8 @@
 name = "jeff-scraper"
 version = "0.1.0"
 edition = "2021"
+authors = ["Effyiex"]
+repository = "https://github.com/Effyiex/jeff-scraper"
 publish = false
 
 [dependencies]
@@ -10,3 +12,4 @@ inputbot = "0.5.1"
 bevy = "0.10.0"
 image = "0.24.5"
 winit = "0.28.3"
+reqwest = {version = "0.11.17", features = ["blocking"]}
