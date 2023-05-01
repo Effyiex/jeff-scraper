@@ -94,7 +94,7 @@ fn await_input(
 
 }
 
-fn get_key_map() -> HashMap<String, &'static KeybdKey> {
+pub fn get_key_map() -> HashMap<String, &'static KeybdKey> {
 
   let mut keys: HashMap<String, &KeybdKey> = HashMap::new();
   keys.insert("A".to_string(), &KeybdKey::AKey);

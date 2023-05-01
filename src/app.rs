@@ -13,6 +13,8 @@ use winit::{
   window::WindowLevel
 };
 
+use crate::scraper::ScrapeResource;
+
 pub struct AppPlugin;
 pub struct AppToggleEvent;
 
@@ -24,6 +26,8 @@ impl Plugin for AppPlugin {
 
       .add_event::<AppToggleEvent>()
       .add_system(await_toggle)
+
+      .add_system(handle_search)
 
       .add_startup_system(setup);
 
@@ -110,6 +114,16 @@ fn await_toggle(
 #[derive(Component)]
 struct SearchbarComponent;
 
+#[derive(Component)]
+struct SearchbarCarret {
+  blink: f32
+}
+
+#[derive(Component)]
+struct SearchbarTerm {
+  held_keys: Vec<String>
+}
+
 fn create_menu(
   commands: &mut Commands,
   resources: &AppResources
@@ -172,10 +186,137 @@ fn create_menu(
         background_color: Color::rgba(1.0, 1.0, 1.0, 0.01).into(),
         ..Default::default()
       })
-        .insert(SearchbarComponent);
+        .insert(SearchbarComponent)
+        .with_children(|parent| {
+          
+          parent.spawn(TextBundle {
+            style: Style {
+              margin: UiRect { 
+                left: Val::Px(8.0), 
+                right: Val::Px(0.0), 
+                top: Val::Auto, 
+                bottom: Val::Auto 
+              },
+              ..Default::default()
+            },
+            text: Text::from_section(
+              "",
+              TextStyle {
+                font: resources.regular_font.clone(),
+                font_size: 32.0,
+                color: Color::WHITE
+              }
+            ),
+            ..Default::default()
+          })
+            .insert(SearchbarTerm {
+              held_keys: vec![]
+            });
+          
+          parent.spawn(TextBundle {
+            style: Style {
+              margin: UiRect { 
+                left: Val::Px(0.0), 
+                right: Val::Auto, 
+                top: Val::Auto, 
+                bottom: Val::Auto 
+              },
+              ..Default::default()
+            },
+            text: Text::from_section(
+              "_",
+              TextStyle {
+                font: resources.regular_font.clone(),
+                font_size: 32.0,
+                color: Color::WHITE
+              }
+            ),
+            ..Default::default()
+          })
+            .insert(SearchbarCarret {
+              blink: 0.0
+            });
+
+        });
 
     });
 
   println!("[{}::app::create_menu] // Menu created.", env!("CARGO_PKG_NAME"));
+
+}
+
+fn handle_search(
+    winit_buffer: NonSend<WinitWindows>,
+    mut carret_query: Query<(&mut Style, &mut SearchbarCarret)>,
+    mut term_query: Query<(&mut Text, &mut SearchbarTerm)>,
+    time: Res<Time>,
+    scrape_resource: Res<ScrapeResource>
+) {
+
+  for window in winit_buffer.windows.iter() {
+    if !window.1.is_visible().unwrap() {
+
+      for (mut term_text, _) in term_query.iter_mut() {
+        term_text.sections[0].value = String::new();
+      }
+
+      return;
+    
+    }
+  }
+
+  for (mut carret_style, mut carret) in carret_query.iter_mut() {
+    carret.blink += time.delta_seconds();
+    if carret.blink > 0.5 {
+
+      match carret_style.display {
+        Display::Flex => {
+          carret_style.display = Display::None;
+        },
+        Display::None => {
+          carret_style.display = Display::Flex;
+        }
+      }
+
+      carret.blink = 0.0;
+
+    }
+  }
+
+  let mut latest_held_keys: Vec<String> = vec![];
+  for key_entry in crate::keybind::get_key_map() {
+    if key_entry.1.is_pressed() {
+      latest_held_keys.push(key_entry.0.clone());
+    }
+  }
+
+  for (mut term_text, mut term) in term_query.iter_mut() {
+
+    for held_key in &latest_held_keys {
+
+      if term.held_keys.contains(&held_key) {
+        continue;
+      }
+
+      if held_key.len() <= 1 && term_text.sections[0].value.len() < 32 {
+        term_text.sections[0].value.push_str(&held_key);
+      } else if held_key == "RIGHT" {
+        let jeff_urls: Vec<String> = crate::scraper::search_jeff_urls(term_text.sections[0].value.clone(), &scrape_resource.objects);
+        for jeff_url in jeff_urls {
+          println!("{}", jeff_url);
+        }
+      } else if held_key == "SPACE" {
+        term_text.sections[0].value.push(' ');
+      } else if held_key == "BACKSPACE" {
+        if !term_text.sections[0].value.is_empty() {
+          term_text.sections[0].value.pop().unwrap();
+        }
+      }
+
+    }
+
+    term.held_keys = latest_held_keys.clone();
+
+  }
 
 }
